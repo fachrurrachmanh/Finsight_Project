@@ -8,7 +8,7 @@
 
 ##Rules:
 - setiap orang harus mengerjakan fitur-fitur bagian aplikasinya sesuai yang ditentukan
-- sebelum ngoding, buka cmd di folder finsight_project, lalu lakukan git pull
+- sebelum ngoding, buka cmd di folder finsight_project,git switch nama_branch ke branch kalian, lalu lakukan git pull
 - mulai ngoding dari cmd di folder finsight_project, pencet code . (setelah melakukan git pull) 
 
 ##cara ngepush ke repo github
@@ -18,11 +18,3 @@
 4. git commit -m "pesan"
 5. git push -u origin nama_branch
 
-<<<<<<< HEAD
-=======
-Developer:
-Fachrurrachman Hakeem
-M. Farras Rizqullah
-Salwachika Deri
-
->>>>>>> bab24960608cfc903d14441b35d2c6c31e1b30bb
