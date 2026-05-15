@@ -18,3 +18,11 @@
 4. git commit -m "pesan"
 5. git push -u origin nama_branch
 
+<<<<<<< HEAD
+=======
+Developer:
+Fachrurrachman Hakeem
+M. Farras Rizqullah
+Salwachika Deri
+
+>>>>>>> bab24960608cfc903d14441b35d2c6c31e1b30bb
