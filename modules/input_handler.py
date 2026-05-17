@@ -1,119 +1,110 @@
-from rich.console import Console
-from rich.prompt import Prompt
+class InputHandler:
+    def input_manual(self):
+        print("\n=== INPUT DATA PERUSAHAAN ===")
 
-console = Console()
+        # =========================
+        # PROFIL PERUSAHAAN
+        # =========================
+        nama = input("Nama perusahaan: ")
+        ticker = input("Kode saham: ")
+        sektor = input("Sektor: ")
+        harga = float(input("Harga pasar saat ini: ") or 0)
 
+        # =========================
+        # JUMLAH TAHUN
+        # =========================
+        jumlah_tahun = int(input("Berapa tahun data? ") or 3)
+        tahun_akhir = int(input("Tahun terakhir: ") or 2024)
 
-def validasi_data(data):
+        tahun_list = list(range(
+            tahun_akhir - jumlah_tahun + 1,
+            tahun_akhir + 1
+        ))
 
-    field_dibutuhkan = [
-
-        "perusahaan",
-        "harga",
-        "eps",
-        "book_value",
-        "laba_bersih",
-        "total_aset",
-        "total_utang",
-        "aset_lancar",
-        "utang_lancar"
-    ]
-
-    for field in field_dibutuhkan:
-
-        if field not in data:
-
-            console.print(
-                f"[red]Missing field:[/red] {field}"
-            )
-
-            return False
-
-    return True
+        neraca_list = []
+        laba_rugi_list = []
+        arus_kas_list = []
 
 
-def manual_input():
+        # input per tahun
+        # =========================
+        for tahun in tahun_list:
+            print(f"\n===== TAHUN {tahun} =====")
 
-    console.print(
-        "\n[bold cyan]Input Keunagan[/bold cyan]\n"
-    )
+            # ---------------------
+            # NERACA
+            # ---------------------
+            print("\n--- Neraca ---")
 
-    try:
+            kas = float(input("Kas: ") or 0)
+            piutang = float(input("Piutang: ") or 0)
+            persediaan = float(input("Persediaan: ") or 0)
 
+            total_aset = float(input("Total aset: ") or 0)
+            total_liabilitas = float(input("Total liabilitas: ") or 0)
+            total_ekuitas = float(input("Total ekuitas: ") or 0)
+
+            neraca = {
+                "tahun": tahun,
+                "kas": kas,
+                "piutang": piutang,
+                "persediaan": persediaan,
+                "total_aset": total_aset,
+                "total_liabilitas": total_liabilitas,
+                "total_ekuitas": total_ekuitas
+            }
+
+            neraca_list.append(neraca)
+
+            #laba rugi
+            #==============
+            print("\n--- Laba Rugi ---")
+
+            pendapatan = float(input("Pendapatan: ") or 0)
+            hpp = float(input("HPP: ") or 0)
+            laba_bersih = float(input("Laba bersih: ") or 0)
+
+            laba_rugi = {
+                "tahun": tahun,
+                "pendapatan": pendapatan,
+                "hpp": hpp,
+                "laba_bersih": laba_bersih
+            }
+
+            laba_rugi_list.append(laba_rugi)
+
+            #arus kas
+            #==========
+            print("\n--- Arus Kas ---")
+
+            cfo = float(input("Cash Flow Operasi: ") or 0)
+            capex = float(input("Capex: ") or 0)
+            free_cash_flow = cfo - capex
+
+            arus_kas = {
+                "tahun": tahun,
+                "cfo": cfo,
+                "capex": capex,
+                "fcf": free_cash_flow
+            }
+
+            arus_kas_list.append(arus_kas)
+
+            print(f"\nData tahun {tahun} berhasil disimpan.")
+
+        # hasil akhir
+        # =========================
         data = {
-
-            "perusahaan":
-                Prompt.ask("ticker perusahaan"),
-
-            "harga":
-                float(
-                    Prompt.ask("harga saham")
-                ),
-
-            "eps":
-                float(
-                    Prompt.ask("EPS")
-                ),
-
-            "book_value":
-                float(
-                    Prompt.ask(
-                        "Book Value per saham"
-                    )
-                ),
-
-            "laba_bersih":
-                float(
-                    Prompt.ask("laba bersih")
-                ),
-
-            "total_aset":
-                float(
-                    Prompt.ask("total aset")
-                ),
-
-            "total_utang":
-                float(
-                    Prompt.ask("total utang")
-                ),
-
-            "aset_lancar":
-                float(
-                    Prompt.ask(
-                        "aset lancar"
-                    )
-                ),
-
-            "utang_lancar":
-                float(
-                    Prompt.ask(
-                        "utang/kewajiban lancar"
-                    )
-                )
+            "profil": {
+                "nama": nama,
+                "ticker": ticker,
+                "sektor": sektor,
+                "harga": harga
+            },
+            "neraca": neraca_list,
+            "laba_rugi": laba_rugi_list,
+            "arus_kas": arus_kas_list
         }
 
-        #validasi
-        if validasi_data(data):
-
-            console.print(
-                "\n[green]input berhasil[/green]"
-            )
-
-            return data
-
-        return None
-
-    except ValueError:
-
-        console.print(
-            "[red]input harus berupa angka[/red]"
-        )
-
-        return None
-    
-if __name__ == "__main__":
-
-    data = manual_input()
-
-    print(data)
+        return data
 
