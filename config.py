@@ -17,7 +17,9 @@ MODELS_DIR    = BASE_DIR / "models"
 DATABASE_DIR  = BASE_DIR / "database"
 OUTPUTS_DIR   = BASE_DIR / "outputs"
 TEMPLATES_DIR = BASE_DIR / "templates"
- 
+
+MODULES_DIR.mkdir(parents=True, exist_ok=True)
+MODELS_DIR.mkdir(parents=True,exist_ok=True)
 OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
 DATABASE_DIR.mkdir(parents=True, exist_ok=True)
 TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
