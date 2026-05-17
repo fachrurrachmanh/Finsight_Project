@@ -2,19 +2,17 @@ class InputHandler:
     def input_manual(self):
         print("\n=== INPUT DATA PERUSAHAAN ===")
 
-        # =========================
-        # PROFIL PERUSAHAAN
-        # =========================
+        #profil perusahaan
+        #=========================
         nama = input("Nama perusahaan: ")
         ticker = input("Kode saham: ")
         sektor = input("Sektor: ")
         harga = float(input("Harga pasar saat ini: ") or 0)
 
-        # =========================
-        # JUMLAH TAHUN
+        #jumlah tahun
         # =========================
         jumlah_tahun = int(input("Berapa tahun data? ") or 3)
-        tahun_akhir = int(input("Tahun terakhir: ") or 2024)
+        tahun_akhir = int(input("Tahun terakhir: ") or 2023)
 
         tahun_list = list(range(
             tahun_akhir - jumlah_tahun + 1,
@@ -31,9 +29,8 @@ class InputHandler:
         for tahun in tahun_list:
             print(f"\n===== TAHUN {tahun} =====")
 
-            # ---------------------
-            # NERACA
-            # ---------------------
+            #neraca
+            # ========
             print("\n--- Neraca ---")
 
             kas = float(input("Kas: ") or 0)
