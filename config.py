@@ -146,5 +146,62 @@ RATIO = {
     "tangible_bv":        {"nama": "Tangible Book Value",    "unit": "Rp",   "cat": "Graham"},
 }
 
+#kolom excel 
+KOLOM_EXCEL = {
+    "balance_sheet": {
+        "Tahun":                    "tahun",
+        "Kas & Setara Kas":         "kas_setara_kas",
+        "Piutang Usaha":            "piutang_usaha",
+        "Persediaan":               "persediaan",
+        "Aset Lancar Lain":         "aset_lancar_lain",
+        "Total Aset Lancar":        "total_aset_lancar",
+        "Aset Tetap (Neto)":        "aset_tetap_neto",
+        "Goodwill":                 "goodwill",
+        "Aset Tidak Berwujud":      "aset_tidak_berwujud",
+        "Total Aset Tidak Lancar":  "total_aset_tidak_lancar",
+        "Total Aset":               "total_aset",
+        "Utang Usaha":              "utang_usaha",
+        "Utang Jangka Pendek":      "utang_jangka_pendek",
+        "Liabilitas Lancar Lain":   "liabilitas_lancar_lain",
+        "Total Liabilitas Lancar":  "total_liabilitas_lancar",
+        "Utang Jangka Panjang":     "utang_jangka_panjang",
+        "Liabilitas Tidak Lancar":  "liabilitas_tidak_lancar_lain",
+        "Total Liabilitas":         "total_liabilitas",
+        "Modal Disetor":            "modal_disetor",
+        "Laba Ditahan":             "laba_ditahan",
+        "Total Ekuitas":            "total_ekuitas",
+        "Jumlah Saham Beredar":     "jumlah_saham_beredar",
+    },
+    "income_statement": {
+        "Tahun":                    "tahun",
+        "Pendapatan":               "pendapatan",
+        "HPP":                      "harga_pokok_penjualan",
+        "Laba Kotor":               "laba_kotor",
+        "Beban Operasional":        "beban_operasional",
+        "EBIT":                     "ebit",
+        "EBITDA":                   "ebitda",
+        "Beban Bunga":              "beban_bunga",
+        "Laba Sebelum Pajak":       "laba_sebelum_pajak",
+        "Pajak":                    "pajak",
+        "Laba Bersih":              "laba_bersih",
+        "EPS":                      "eps",
+        "DPS":                      "dps",
+    },
+    "cash_flow": {
+        "Tahun":                    "tahun",
+        "Arus Kas Operasi":         "arus_kas_operasi",
+        "Capex":                    "capex",
+        "Free Cash Flow":           "free_cash_flow",
+        "Arus Kas Investasi":       "arus_kas_investasi",
+        "Arus Kas Pendanaan":       "arus_kas_pendanaan",
+        "Perubahan Kas":            "perubahan_kas",
+    },
+    "market_data": {
+        "Tahun":                    "tahun",
+        "Harga Saham":              "harga_saham",
+        "Market Cap":               "market_cap",
+        "Enterprise Value":         "enterprise_value",
+    },
+}
 
 
