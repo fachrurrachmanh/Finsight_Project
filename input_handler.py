@@ -1,3 +1,9 @@
+"""
+modules/input_handler.py
+=========================
+Membaca file template_input.xlsx dan mengembalikan CompanyData.
+"""
+
 import sys
 from pathlib import Path
 
@@ -18,7 +24,6 @@ from models.financial_data import BalanceSheet, IncomeStatement, CashFlow, Marke
 # ══════════════════════════════════════════════════════
 
 def _safe_float(val) -> float:
-    """Konversi nilai apapun ke float, kembalikan 0.0 jika gagal."""
     if val is None:
         return 0.0
     try:
@@ -31,7 +36,8 @@ def _safe_float(val) -> float:
 
 
 # ══════════════════════════════════════════════════════
-# MAPPING: label di template → field di dataclass
+# MAPPING: label template → field class
+# None = kolom kalkulasi, dilewati
 # ══════════════════════════════════════════════════════
 
 LABEL_NERACA = {
@@ -92,7 +98,7 @@ LABEL_ARUS_KAS = {
     "Buyback Saham":            "buyback_saham",
     "Arus Kas Pendanaan":       "arus_kas_pendanaan",
     "Perubahan Kas Bersih":     "perubahan_kas",
-    "Free Cash Flow":           None,  # dihitung via @property, dilewati
+    "Free Cash Flow":           None,
 }
 
 LABEL_PASAR = {
@@ -106,21 +112,20 @@ LABEL_PASAR = {
 # BACA SHEET
 # ══════════════════════════════════════════════════════
 
-def _baca_sheet(xls: pd.ExcelFile, nama_sheet: str,
-                label_map: dict) -> dict[int, dict]:
+def _baca_sheet(xls, nama_sheet, label_map):
     """
-    Baca satu sheet template dan kembalikan dict:
-        { tahun: { field_name: nilai, ... }, ... }
+    Baca satu sheet dan kembalikan:
+        { tahun: { field: nilai, ... }, ... }
 
-    Struktur sheet template:
-        baris 0  : judul       → dilewati
-        baris 1  : header      → kolom ke-4 dst berisi tahun
-        baris 2+ : data item   → kolom 1 berisi label
+    Struktur template:
+        baris 0  : judul      -> dilewati
+        baris 1  : header     -> kolom 4+ berisi tahun
+        baris 2+ : data item  -> kolom 1 berisi label
     """
     df = pd.read_excel(xls, sheet_name=nama_sheet, header=None)
 
-    # cari kolom tahun dari baris header (baris index 1)
-    tahun_cols = {}   # { index_kolom: tahun }
+    # cari kolom tahun dari baris index 1
+    tahun_cols = {}
     for col_idx, val in enumerate(df.iloc[1]):
         try:
             v = int(_safe_float(val))
@@ -130,55 +135,44 @@ def _baca_sheet(xls: pd.ExcelFile, nama_sheet: str,
             pass
 
     if not tahun_cols:
-        print(f"  [PERINGATAN] Sheet '{nama_sheet}': kolom tahun tidak ditemukan.")
+        print(f"  PERINGATAN: Sheet '{nama_sheet}' tidak memiliki kolom tahun.")
         return {}
 
-    # siapkan wadah hasil per tahun
+    # wadah hasil
     hasil = {t: {"tahun": t} for t in tahun_cols.values()}
 
-    # baca baris data satu per satu
-    for row_idx in range(2, len(df)):
-        row = df.iloc[row_idx]
+    # baca tiap baris data
+    for i in range(2, len(df)):
+        row = df.iloc[i]
 
-        # kolom 1 = label item laporan keuangan
         label_raw = str(row.iloc[1]).strip()
 
-        # lewati baris kosong dan section header (▌ ...)
+        # lewati baris kosong dan section header
         if not label_raw or label_raw in ("nan", "None"):
             continue
         if label_raw.startswith("▌"):
             continue
 
-        # bersihkan prefix "* " (wajib) dan "  " (opsional)
+        # bersihkan prefix
         label = label_raw.replace("* ", "").replace("  ", "").strip()
 
-        # cari field yang sesuai di mapping
-        if label not in label_map:
+        if label not in label_map or label_map[label] is None:
             continue
 
-        field_name = label_map[label]
+        field = label_map[label]
 
-        # None berarti kolom kalkulasi (Free Cash Flow) — lewati
-        if field_name is None:
-            continue
-
-        # ambil nilai dari setiap kolom tahun
         for col_idx, tahun in tahun_cols.items():
             nilai = _safe_float(row.iloc[col_idx] if col_idx < len(row) else None)
-            hasil[tahun][field_name] = nilai
+            hasil[tahun][field] = nilai
 
     return hasil
 
 
-def _baca_profil(xls: pd.ExcelFile) -> Optional[CompanyProfile]:
-    """
-    Baca sheet Profil dari template.
-    Kolom A = label, kolom B = nilai yang diisi pengguna.
-    """
+def _baca_profil(xls):
+    """Baca sheet Profil. Kolom A = label, kolom B = nilai."""
     df = pd.read_excel(xls, sheet_name="Profil", header=None)
     df = df.dropna(how="all")
 
-    # bangun dict label → nilai dari kolom A dan B
     peta = {}
     for _, row in df.iterrows():
         if len(row) >= 2 and pd.notna(row.iloc[0]):
@@ -188,29 +182,23 @@ def _baca_profil(xls: pd.ExcelFile) -> Optional[CompanyProfile]:
 
     nama   = peta.get("Nama Perusahaan", "").strip()
     ticker = peta.get("Ticker", "").strip()
-    sektor = peta.get("Sektor", "Lainnya").strip()
-    sub    = peta.get("Sub Sektor", "").strip()
-    harga  = _safe_float(peta.get("Harga Pasar", 0))
 
     if not nama or not ticker:
         return None
 
     return CompanyProfile(
-        nama=nama,
-        ticker=ticker,
-        sektor=sektor,
-        sub_sektor=sub,
-        harga_pasar=harga,
+        nama   = nama,
+        ticker = ticker,
+        sektor = peta.get("Sektor", "Lainnya").strip(),
+        sub_sektor = peta.get("Sub Sektor", "").strip(),
+        harga_pasar = _safe_float(peta.get("Harga Pasar", 0)),
     )
 
 
-def _dict_ke_dataclass(data_dict: dict, Kelas):
-    """
-    Konversi dict hasil _baca_sheet ke objek dataclass.
-    Hanya field yang ada di dataclass yang diteruskan.
-    """
-    fields_valid = Kelas.__dataclass_fields__.keys()
-    kw = {k: v for k, v in data_dict.items() if k in fields_valid}
+def _buat_objek(data_dict, Kelas):
+    """Buat objek dari dict — hanya kirim field yang dikenal class."""
+    field_valid = vars(Kelas()).keys()
+    kw = {k: v for k, v in data_dict.items() if k in field_valid}
     return Kelas(**kw)
 
 
@@ -219,34 +207,17 @@ def _dict_ke_dataclass(data_dict: dict, Kelas):
 # ══════════════════════════════════════════════════════
 
 class InputHandler:
-    """
-    Membaca file Excel template FinSight dan mengembalikan CompanyData.
 
-    Contoh:
-        handler = InputHandler()
-        data    = handler.dari_excel("data/tlkm.xlsx")
-    """
-
-    def dari_excel(self, path: str | Path) -> Optional[CompanyData]:
-        """
-        Baca file template_input.xlsx yang sudah diisi pengguna.
-
-        Parameter:
-            path : lokasi file .xlsx
-
-        Return:
-            CompanyData jika berhasil, None jika gagal
-        """
+    def dari_excel(self, path):
         path = Path(path)
 
-        # validasi file
         if not path.exists():
-            print(f"\n  ERROR: File tidak ditemukan: {path}")
-            print(f"  Template tersedia di: {cfg.TEMPLATES_DIR / 'template_input.xlsx'}")
+            print(f"\n  ERROR: File tidak ditemukan — {path}")
+            print(f"  Template: {cfg.TEMPLATES_DIR / 'template_input.xlsx'}")
             return None
 
         if path.suffix.lower() not in (".xlsx", ".xlsm"):
-            print(f"  ERROR: Format tidak didukung ({path.suffix}). Gunakan .xlsx")
+            print(f"  ERROR: Gunakan file .xlsx dari template FinSight.")
             return None
 
         print(f"\n  Membaca: {path.name}")
@@ -254,68 +225,53 @@ class InputHandler:
         try:
             xls = pd.ExcelFile(path)
 
-            # baca profil
             profil = _baca_profil(xls)
             if profil is None:
-                print("  ERROR: Sheet 'Profil' tidak lengkap.")
-                print("  Pastikan Nama Perusahaan dan Ticker sudah diisi.")
+                print("  ERROR: Sheet Profil tidak lengkap (Nama & Ticker wajib diisi).")
                 return None
 
-            # baca empat sheet laporan keuangan
             data_neraca = _baca_sheet(xls, "Neraca",    LABEL_NERACA)
             data_lr     = _baca_sheet(xls, "LabaRugi",  LABEL_LABA_RUGI)
             data_cf     = _baca_sheet(xls, "ArusKas",   LABEL_ARUS_KAS)
             data_pasar  = _baca_sheet(xls, "DataPasar", LABEL_PASAR)
 
-            # konversi dict → dataclass
-            neraca_list = [_dict_ke_dataclass(d, BalanceSheet)    for d in data_neraca.values()]
-            lr_list     = [_dict_ke_dataclass(d, IncomeStatement)  for d in data_lr.values()]
-            cf_list     = [_dict_ke_dataclass(d, CashFlow)         for d in data_cf.values()]
-            mp_list     = [_dict_ke_dataclass(d, MarketData)       for d in data_pasar.values()]
+            neraca_list = [_buat_objek(d, BalanceSheet)    for d in data_neraca.values()]
+            lr_list     = [_buat_objek(d, IncomeStatement)  for d in data_lr.values()]
+            cf_list     = [_buat_objek(d, CashFlow)         for d in data_cf.values()]
+            mp_list     = [_buat_objek(d, MarketData)       for d in data_pasar.values()]
 
-            # pakai harga saham terbaru dari DataPasar jika profil kosong
             if profil.harga_pasar <= 0 and mp_list:
                 profil.harga_pasar = mp_list[-1].harga_saham
 
-            # rakit CompanyData
             data = CompanyData(
-                profil=profil,
-                neraca=neraca_list,
-                laba_rugi=lr_list,
-                arus_kas=cf_list,
-                data_pasar=mp_list,
+                profil    = profil,
+                neraca    = neraca_list,
+                laba_rugi = lr_list,
+                arus_kas  = cf_list,
+                data_pasar = mp_list,
             )
 
-            self._tampilkan_ringkasan(data)
+            self._ringkasan(data)
             return data
 
         except Exception as e:
-            print(f"  ERROR: Gagal membaca file — {e}")
+            print(f"  ERROR: {e}")
             return None
 
-    def _tampilkan_ringkasan(self, data: CompanyData) -> None:
-        """Cetak ringkasan data yang berhasil dimuat."""
+    def _ringkasan(self, data):
         valid, errors = data.validasi()
-
         print()
         print("  " + "=" * 48)
         print(f"  {data.profil.nama} ({data.profil.ticker})")
         print(f"  Sektor  : {data.profil.sektor}")
-        print(f"  Periode : {', '.join(map(str, data.tahun_tersedia))} ({data.jumlah_tahun} tahun)")
+        print(f"  Periode : {', '.join(map(str, data.tahun_tersedia()))} ({data.jumlah_tahun()} tahun)")
         print(f"  Harga   : Rp {data.profil.harga_pasar:,.0f}")
         print("  " + "-" * 48)
-
-        laporan = [
-            ("Neraca",     data.neraca),
-            ("Laba Rugi",  data.laba_rugi),
-            ("Arus Kas",   data.arus_kas),
-            ("Data Pasar", data.data_pasar),
-        ]
-        for nama, items in laporan:
+        for nama, items in [("Neraca", data.neraca), ("Laba Rugi", data.laba_rugi),
+                             ("Arus Kas", data.arus_kas), ("Data Pasar", data.data_pasar)]:
             status = "OK" if len(items) >= cfg.GRAHAM["min_years_data"] else "KURANG"
             tahun  = ", ".join(str(x.tahun) for x in items) if items else "-"
             print(f"  {nama:<12}: {tahun}  [{status}]")
-
         print("  " + "-" * 48)
         if errors:
             for e in errors:
