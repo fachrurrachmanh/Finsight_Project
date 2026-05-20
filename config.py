@@ -26,7 +26,7 @@ TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
  
 DB_PATH = DATABASE_DIR / "finsight.db"
 
-#prinsip benjamin graham
+#variabel analisis benjamin graham
 #=======================
 GRAHAM = {
     #graham number  
@@ -58,6 +58,36 @@ GRAHAM = {
  
     #ncav
     "ncav_discount":         0.67,
+}
+
+RISK = {
+    # Altman Z-Score
+    "altman_safe":            2.99,   # > 2.99  → aman
+    "altman_grey":            1.81,   # 1.81–2.99 → abu-abu
+                                      # < 1.81  → bahaya
+ 
+    # Beneish M-Score  (manipulasi laba)
+    "beneish_threshold":     -1.78,   # > -1.78 → potensi manipulasi
+ 
+    # Springate S-Score  (kebangkrutan)
+    "springate_threshold":   0.862,   # < 0.862 → berbahaya
+ 
+    # Solvabilitas
+    "min_interest_coverage":  3.0,    # EBIT / Bunga >= 3x
+    "max_net_debt_ebitda":    3.0,    # Net Debt / EBITDA <= 3x
+ 
+    # Accrual Ratio  =  (Net Income - FCF) / Total Aset
+    "accrual_ratio_warning":  0.05,   # > 5%  → perhatian
+    "accrual_ratio_danger":   0.10,   # > 10% → berbahaya
+ 
+    # Likuiditas
+    "min_cash_ratio":         0.20,
+    "min_days_cash":            30,   # hari
+ 
+    # Volatilitas EPS  (CV = StdDev / Mean)
+    "eps_cv_stable":          0.15,   # < 15% → stabil
+    "eps_cv_moderate":        0.30,   # 15–30% → moderat
+                                      # > 30% → tidak stabil
 }
 
 #graham scorecard
@@ -101,6 +131,23 @@ SEKTOR = [
 #sektor perusahaan
 # =========================
 SEKTOR_KEUANGAN = {"Perbankan & Keuangan"}
+
+GRADE = {
+    "A": {"min": 90, "label": "STRONG BUY",   "color": "bright_green"},
+    "B": {"min": 75, "label": "BUY",           "color": "green"},
+    "C": {"min": 60, "label": "HOLD / WATCH",  "color": "yellow"},
+    "D": {"min": 45, "label": "AVOID",         "color": "red"},
+    "F": {"min":  0, "label": "SELL / DANGER", "color": "bright_red"},
+}
+
+RECOMMENDATION = {
+    "strong_buy": {"min_mos":  0.40, "label": "STRONG BUY   — beli agresif"},
+    "buy":        {"min_mos":  0.33, "label": "BUY          — beli bertahap"},
+    "accumulate": {"min_mos":  0.20, "label": "ACCUMULATE   — cicil perlahan"},
+    "watch":      {"min_mos":  0.10, "label": "WATCH        — pantau terus"},
+    "avoid":      {"min_mos":  0.00, "label": "AVOID        — belum layak beli"},
+    "overvalued": {"min_mos":  None, "label": "OVERVALUED   — jauhi"},
+}
 
 #rasio_keuangan
 # =========================
