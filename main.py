@@ -62,7 +62,7 @@ def tanya_pilihan(label, pilihan_valid, default=""):
 def tanya_path():
     """Input path file Excel dengan validasi ekstensi."""
     while True:
-        path_str = tanya("Path file Excel (.xlsx)")
+        path_str = tanya("Path file Excel yang ingin dianalisis (.xlsx)")
         if not path_str:
             print("  Path tidak boleh kosong.")
             continue
@@ -366,8 +366,8 @@ def main():
             cetak("  ANALISIS PERUSAHAAN BARU")
             cetak(garis("-"))
             cetak()
-            cetak(f"  Siapkan file Excel dari template:")
-            cetak(f"  {cfg.TEMPLATES_DIR / 'template_input.xlsx'}")
+            cetak(f"  Copy file template Excel, lalu isi dengan data perusahaan untuk input program")
+            cetak(f"  Alamat file template: {cfg.TEMPLATES_DIR / 'template_input.xlsx'}")
             cetak()
 
             path = tanya_path()
