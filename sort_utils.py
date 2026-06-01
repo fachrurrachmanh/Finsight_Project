@@ -1,26 +1,3 @@
-"""
-sort_utils.py — Algoritma Pengurutan Kustom (Merge Sort)
-=========================================================
-Menggantikan fungsi built-in sorted() di seluruh modul FinSight.
-
-Algoritma  : Merge Sort
-Kompleksitas:
-    Waktu   — O(n log n) untuk semua kasus (terbaik / rata-rata / terburuk)
-    Ruang   — O(n) ruang tambahan untuk array bantu saat proses penggabungan
-
-Kelebihan Merge Sort vs alternatif lain:
-    ✔  Stabil: elemen dengan nilai kunci sama mempertahankan urutan aslinya
-    ✔  Deterministik: tidak bergantung pada kondisi awal data (berbeda Quick Sort)
-    ✔  Konsisten: tidak ada kasus terburuk O(n²) seperti Bubble/Insertion/Quick Sort
-    ✔  Cocok untuk key-based sort (objek, tuple, Path) yang digunakan di proyek ini
-
-Cara pakai (pengganti sorted()):
-    merge_sort(arr)                              → ascending tanpa key
-    merge_sort(arr, key=lambda x: x.tahun)       → ascending berdasarkan .tahun
-    merge_sort(arr, key=lambda x: x[1], reverse=True)  → descending berdasarkan indeks 1
-"""
-
-
 # ══════════════════════════════════════════════════════
 # FUNGSI INTERNAL — PENGGABUNGAN DUA SUB-LIST
 # ══════════════════════════════════════════════════════
@@ -99,31 +76,6 @@ def merge_sort(arr, key=None, reverse=False):
     -------
     list
         List baru yang sudah terurut. List asli tidak dimodifikasi.
-
-    Contoh
-    ------
-    >>> merge_sort([3, 1, 4, 1, 5])
-    [1, 1, 3, 4, 5]
-
-    >>> merge_sort([3, 1, 4], reverse=True)
-    [4, 3, 1]
-
-    >>> data = [('b', 2), ('a', 5), ('c', 1)]
-    >>> merge_sort(data, key=lambda x: x[1])
-    [('c', 1), ('b', 2), ('a', 5)]
-
-    Cara kerja rekursif
-    -------------------
-    merge_sort([8, 3, 5, 1])
-        ├─ merge_sort([8, 3])
-        │    ├─ merge_sort([8]) → [8]      ← base case
-        │    ├─ merge_sort([3]) → [3]      ← base case
-        │    └─ _gabung([8],[3]) → [3, 8]
-        ├─ merge_sort([5, 1])
-        │    ├─ merge_sort([5]) → [5]      ← base case
-        │    ├─ merge_sort([1]) → [1]      ← base case
-        │    └─ _gabung([5],[1]) → [1, 5]
-        └─ _gabung([3,8],[1,5]) → [1, 3, 5, 8]
     """
     # Konversi ke list agar bisa di-slice (mendukung generator, set, dll.)
     arr = list(arr)
