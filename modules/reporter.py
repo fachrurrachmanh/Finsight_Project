@@ -39,6 +39,7 @@ from models.company import CompanyData
 from modules.ratio_engine    import RatioEngine
 from modules.graham_analyzer import GrahamAnalyzer
 from modules.risk_analyzer   import RiskAnalyzer
+from sort_utils import merge_sort
 
 
 # ══════════════════════════════════════════════════════
@@ -584,7 +585,7 @@ class Reporter:
         skor_komponen = self.graham.scorecard.get("skor_per_komponen", {})
 
         # sorting komponen dari tertinggi ke terendah
-        terurut = sorted(skor_komponen.items(), key=lambda x: x[1], reverse=True)
+        terurut = merge_sort(skor_komponen.items(), key=lambda x: x[1], reverse=True)
         for nama, skor in terurut:
             bobot = cfg.SCORECARD_WEIGHTS.get(nama, 0)
             bar   = "█" * (skor // 10) + "░" * (10 - skor // 10)
@@ -1087,7 +1088,7 @@ class Reporter:
     def komponen_terurut(self):
         """Urutkan komponen scorecard dari tertinggi."""
         skor = self.graham.scorecard.get("skor_per_komponen", {})
-        return sorted(skor.items(), key=lambda x: x[1], reverse=True)
+        return merge_sort(skor.items(), key=lambda x: x[1], reverse=True)
 
     # ──────────────────────────────────────────────────
     # FILE HANDLER — simpan laporan
@@ -1177,3 +1178,4 @@ class Reporter:
         total_bagian = hitung_total_bagian_rekursif(self.pohon)
         print(f"  Pohon     : {total_bagian} sub-bagian terdefinisi")
         print()
+        

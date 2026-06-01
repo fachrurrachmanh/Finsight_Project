@@ -5,7 +5,7 @@ Class profil dan wadah data perusahaan multi-periode.
 """
 
 from datetime import datetime
-
+from sort_utils import merge_sort
 
 class CompanyProfile:
     def __init__(self, nama="", ticker="", sektor="Lainnya",
@@ -21,16 +21,15 @@ class CompanyProfile:
         self.harga_pasar      = harga_pasar
         self.tanggal_analisis = tanggal_analisis or datetime.today().strftime("%Y-%m-%d")
 
-
 class CompanyData:
     def __init__(self, profil, neraca=None, laba_rugi=None,
                  arus_kas=None, data_pasar=None):
 
         self.profil     = profil
-        self.neraca     = sorted(neraca     or [], key=lambda x: x.tahun)
-        self.laba_rugi  = sorted(laba_rugi  or [], key=lambda x: x.tahun)
-        self.arus_kas   = sorted(arus_kas   or [], key=lambda x: x.tahun)
-        self.data_pasar = sorted(data_pasar or [], key=lambda x: x.tahun)
+        self.neraca     = merge_sort(neraca     or [], key=lambda x: x.tahun)
+        self.laba_rugi  = merge_sort(laba_rugi  or [], key=lambda x: x.tahun)
+        self.arus_kas   = merge_sort(arus_kas   or [], key=lambda x: x.tahun)
+        self.data_pasar = merge_sort(data_pasar or [], key=lambda x: x.tahun)
 
     def tahun_tersedia(self):
         return [b.tahun for b in self.neraca]

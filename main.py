@@ -26,6 +26,7 @@ from modules.ratio_engine    import RatioEngine
 from modules.graham_analyzer import GrahamAnalyzer
 from modules.risk_analyzer   import RiskAnalyzer
 from modules.reporter        import Reporter
+from sort_utils import merge_sort
 
 
 # ══════════════════════════════════════════════════════
@@ -62,7 +63,7 @@ def tanya_pilihan(label, pilihan_valid, default=""):
 def tanya_path():
     """Input path file Excel dengan validasi ekstensi."""
     while True:
-        path_str = tanya("Path file Excel yang ingin dianalisis (.xlsx)")
+        path_str = tanya("Path file Excel (.xlsx)")
         if not path_str:
             print("  Path tidak boleh kosong.")
             continue
@@ -219,10 +220,10 @@ def tampilkan_riwayat():
     cetak()
 
     # cari semua file laporan di outputs/
-    files_txt  = sorted(cfg.OUTPUTS_DIR.glob("*_laporan_*.txt"),  reverse=True)
-    files_json = sorted(cfg.OUTPUTS_DIR.glob("*_laporan_*.json"), reverse=True)
-    semua      = sorted(set(files_txt) | set(files_json),
-                        key=lambda x: x.stat().st_mtime, reverse=True)
+    files_txt  = merge_sort(cfg.OUTPUTS_DIR.glob("*_laporan_*.txt"),  key=lambda x: x.stat().st_mtime, reverse=True)
+    files_json = merge_sort(cfg.OUTPUTS_DIR.glob("*_laporan_*.json"), key=lambda x: x.stat().st_mtime, reverse=True)
+    semua      = merge_sort(set(files_txt) | set(files_json),
+                            key=lambda x: x.stat().st_mtime, reverse=True)
 
     if not semua:
         cetak("  Belum ada laporan tersimpan.")
@@ -366,8 +367,8 @@ def main():
             cetak("  ANALISIS PERUSAHAAN BARU")
             cetak(garis("-"))
             cetak()
-            cetak(f"  Copy file template Excel, lalu isi dengan data perusahaan untuk input program")
-            cetak(f"  Alamat file template: {cfg.TEMPLATES_DIR / 'template_input.xlsx'}")
+            cetak(f"  Siapkan file Excel dari template:")
+            cetak(f"  {cfg.TEMPLATES_DIR / 'template_input.xlsx'}")
             cetak()
 
             path = tanya_path()
@@ -411,3 +412,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         cetak("\n\n  Program dihentikan.")
         sys.exit(0)
+        

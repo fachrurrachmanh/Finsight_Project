@@ -38,6 +38,7 @@ if str(ROOT) not in sys.path:
 
 import config as cfg
 from models.company import CompanyData
+from sort_utils import merge_sort
 
 
 # ══════════════════════════════════════════════════════
@@ -252,9 +253,9 @@ class HashTable:
 class TreeNode:
     def __init__(self, nama, bobot=0.0):
         self.nama     = nama
-        self.bobot    = bobot    # bobot dalam scorecard (0.0–1.0)
+        self.bobot    = bobot    
         self.children = []
-        self.komponen = []       # daftar sub-komponen
+        self.komponen = []       
 
     def tambah_child(self, child):
         self.children.append(child)
@@ -596,7 +597,7 @@ class GrahamAnalyzer:
         kandidat_valid = {k: v for k, v in kandidat.items() if v > 0}
 
         if kandidat_valid:
-            nilai_intrinsik = min(kandidat_valid.values())   # paling konservatif
+            nilai_intrinsik = min(kandidat_valid.values())   
         else:
             nilai_intrinsik = 0.0
 
@@ -749,7 +750,8 @@ class GrahamAnalyzer:
         avg_eps  = rata_rata_rekursif(eps_list)
         variance = rata_rata_rekursif([(e - avg_eps) ** 2 for e in eps_list])
         std_eps  = variance ** 0.5
-        cv_eps   = _div(std_eps, avg_eps)   # Coefficient of Variation
+        # Coefficient of Variation
+        cv_eps   = _div(std_eps, avg_eps)   
 
         if cv_eps < cfg.RISK["eps_cv_stable"]:
             stabilitas_eps = "STABIL"
@@ -931,7 +933,7 @@ class GrahamAnalyzer:
         self.scorecard["label"]             = cfg.GRADE[grade]["label"]
 
         # sorting komponen berdasarkan skor
-        self.scorecard["ranking_komponen"] = sorted(
+        self.scorecard["ranking_komponen"] = merge_sort(
             skor_komponen.items(), key=lambda x: x[1], reverse=True
         )
 
@@ -1194,3 +1196,4 @@ class GrahamAnalyzer:
         except Exception as e:
             print(f"  ERROR: {e}")
             return None
+        
