@@ -40,6 +40,7 @@ if str(ROOT) not in sys.path:
 
 import config as cfg
 from models.company import CompanyData
+from sort_utils import merge_sort
 
 
 # ══════════════════════════════════════════════════════
@@ -1073,13 +1074,13 @@ class RiskAnalyzer:
         Return: list of tuple (kategori, skor)
         """
         data = list(self.skor_per_kategori.items())
-        data.sort(key=lambda x: x[1], reverse=not ascending)
+        data = merge_sort(data, key=lambda x: x[1], reverse=not ascending)
         return data
 
     def urutkan_tahun_by_risiko(self, ascending=False):
         """Urutkan tahun berdasarkan skor risiko total."""
         data = [(d["tahun"], d.get("skor_total", 0)) for d in self.hasil_per_tahun]
-        data.sort(key=lambda x: x[1], reverse=not ascending)
+        data = merge_sort(data, key=lambda x: x[1], reverse=not ascending)
         return data
 
     def ranking_red_flags(self):
@@ -1270,3 +1271,4 @@ class RiskAnalyzer:
         except Exception as e:
             print(f"  ERROR: {e}")
             return None
+        

@@ -31,6 +31,7 @@ if str(ROOT) not in sys.path:
 
 import config as cfg
 from models.company import CompanyData
+from sort_utils import merge_sort
 
 
 # ══════════════════════════════════════════════════════
@@ -760,7 +761,7 @@ class RatioEngine:
             for d in self.semua_rasio
             if d.get(nama_rasio) is not None
         ]
-        data.sort(key=lambda x: x[1], reverse=not ascending)
+        data = merge_sort(data, key=lambda x: x[1], reverse=not ascending)
         return data
 
     def ranking_rasio(self, nama_rasio):
@@ -937,3 +938,4 @@ class RatioEngine:
             if kunci in self.ringkasan:
                 print(f"  {label:<20}: {self.ringkasan[kunci]*100:.2f}%")
         print()
+        
