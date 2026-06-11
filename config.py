@@ -166,7 +166,7 @@ FINANCIAL_SECTORS = {"Perbankan & Keuangan"}
 # ──────────────────────────────────────────────────────
 # FORMAT OUTPUT
 # ──────────────────────────────────────────────────────
-OUTPUT_FORMATS      = ["pdf", "xlsx", "json", "txt"]
+OUTPUT_FORMATS      = ["json", "txt"]
 OUTPUT_DATE_FORMAT  = "%Y-%m-%d"
 OUTPUT_FILE_PATTERN = "{ticker}_{type}_{date}.{ext}"
 # contoh: TLKM_analysis_2025-01-15.pdf
